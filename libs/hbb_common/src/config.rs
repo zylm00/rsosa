@@ -2544,6 +2544,10 @@ pub mod keys {
     // joystick is the virtual mouse.
     // So `OPTION_SHOW_VIRTUAL_MOUSE` should also be set if `OPTION_SHOW_VIRTUAL_JOYSTICK` is set.
     pub const OPTION_SHOW_VIRTUAL_JOYSTICK: &str = "show-virtual-joystick";
+        //修复隐藏CM功能：
+    pub const OPTION_ALLOW_HIDE_CM: &str = "allow-hide-cm";
+    //修复托盘图标功能：
+    pub const OPTION_HIDE_TRAY: &str = "hide-tray";
 
     // built-in options
     pub const OPTION_DISPLAY_NAME: &str = "display-name";
@@ -2730,6 +2734,10 @@ pub mod keys {
         OPTION_ENABLE_ANDROID_SOFTWARE_ENCODING_HALF_SCALE,
         OPTION_ENABLE_TRUSTED_DEVICES,
         OPTION_RELAY_SERVER,
+        //修复隐藏CM功能：
+        OPTION_ALLOW_HIDE_CM,
+        //修复隐藏托盘功能：
+        OPTION_HIDE_TRAY,
     ];
 
     // BUILDIN_SETTINGS
