@@ -95,7 +95,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             // 新增小字说明行
             SizedBox(height: 10),
             Text(
-              "你的电脑已准备就绪",     // 这里换成你要显示的小字
+              "复制id发给小伙伴",     // 这里换成你要显示的小字
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
