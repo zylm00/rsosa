@@ -128,10 +128,10 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           // ⭐ 在这里添加你的文字（以网络状态为间距）
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 16, bottom: 6),
-            //child: Text(
-            //  translate("温馨提示：sos版本无安装点关闭即可"),   // ← 你要显示的文字
-            // style: Theme.of(context).textTheme.bodySmall,
-            //),
+            child: Text(
+              translate("温馨提示：sos版本无安装点关闭即可"),   // ← 你要显示的文字
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),  
           // 底部网络状态
           Divider(),
@@ -211,8 +211,23 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
+  // 密码显示板块
+  Widget buildPasswordBoard(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: gFFI.serverModel,
+      child: Consumer<ServerModel>(
+        builder: (context, model, child) {
+          return buildPasswordBoard2(context, model);
+        },
+      ),
+    );
+  }
+
   Widget buildPasswordBoard2(BuildContext context, ServerModel model) {
+    RxBool refreshHover = false.obs;
     final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    final showOneTime = model.approveMode != 'click' &&
+        model.verificationMethod != kUsePermanentPassword;
 
     return Container(
       margin: EdgeInsets.only(left: 20.0, right: 16, top: 13, bottom: 13),
@@ -225,7 +240,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             height: 52,
             decoration: BoxDecoration(color: MyTheme.accent),
           ),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 7),
@@ -233,47 +247,72 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AutoSizeText(
-                    translate("Your ID"),
+                    translate("One-time Password"),
                     style: TextStyle(
-                      fontSize: 14,
-                      color: textColor?.withOpacity(0.5),
-                    ),
+                        fontSize: 14, color: textColor?.withOpacity(0.5)),
                     maxLines: 1,
                   ),
-
-                  const SizedBox(height: 6),
-
-                  TextFormField(
-                    controller: model.serverId,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.only(top: 14, bottom: 10, left: 8),
-                    ),
-                    style: const TextStyle(fontSize: 15),
-                  ).workaroundFreezeLinuxMint(),
-
-                  const SizedBox(height: 6),
-
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onDoubleTap: () {
+                            if (showOneTime) {
+                              Clipboard.setData(
+                                  ClipboardData(text: model.serverPasswd.text));
+                              showToast(translate("Copied"));
+                            }
+                          },
+                          child: TextFormField(
+                            controller: model.serverPasswd,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding:
+                                  EdgeInsets.only(top: 14, bottom: 10, left: 8),
+                            ),
+                            style: TextStyle(fontSize: 15),
+                          ).workaroundFreezeLinuxMint(),
+                        ),
+                      ),
+                      if (showOneTime)
+                        AnimatedRotationWidget(
+                          onPressed: () => bind.mainUpdateTemporaryPassword(),
+                          child: Tooltip(
+                            message: translate('Refresh Password'),
+                            child: Obx(() => RotatedBox(
+                                quarterTurns: 2,
+                                child: Icon(
+                                  Icons.refresh,
+                                  color: refreshHover.value
+                                      ? textColor
+                                      : Color(0xFFDDDDDD),
+                                  size: 22,
+                                ))),
+                          ),
+                          onHover: (value) => refreshHover.value = value,
+                        ).marginOnly(right: 8, top: 4),
+                    ],
+                  ),
+                  // 复制按钮 - 同时复制 ID 和密码
+                  SizedBox(height: 12),
                   InkWell(
                     onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(text: model.serverId.text),
-                      );
+                      Clipboard.setData(ClipboardData(
+                        text:
+                            '${model.serverId.text}\n${model.serverPasswd.text}',
+                      ));
                       showToast(translate("Copied"));
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: Color(0xFF2576E3),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        translate("复制ID"),
+                        translate("复制"),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
